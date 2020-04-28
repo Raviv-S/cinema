@@ -1,7 +1,8 @@
 class Movie:
 
-    def __init__(self, name):
+    def __init__(self, name, index):
         self.name = name
+        self.index = index
         self.cost = 2
 
     def buy_ticket(self, amount):
@@ -12,12 +13,28 @@ class Movie:
         """
         # The total price here reduced to a singular equation
         total_amount = amount * self.cost + 2 * sum(range(amount))
-        self.cost = self.cost + 2 * amount
+        self.cost += 2 * amount
         return total_amount
 
 
+def choose_movie(movie_name_ind, catalog):
+    """
+    Returns the movie object instances according the movie name or index.
+    :param catalog: Movie object list
+    :param movie_name_ind: Movie name or index (not case sensitive)
+    :return: Movie object
+    """
+    for movie in catalog:
+        if (movie.name == movie_name_ind) | (movie.index == movie_name_ind):
+            return movie
+    # To the reviewer - The same can be done with filter but it's less readable and a bit messier.
+    # return list(filter(lambda movie: (movie.name.lower() == movie_name_ind.lower()) | (movie.index == movie_name_ind),
+    #                   catalog))[0]
+
+
 def main():
-    movies_catalog = [Movie('Wonder Woman 1984'), Movie('James Bond No Time To Die'), Movie('Black Widow')]
+    movies_catalog = [Movie('Wonder Woman 1984', '0'), Movie('James Bond No Time To Die', '1'),
+                      Movie('Black Widow', '2')]
     username = ''
     cinema_revenue = 0
     while username != 'quit':
@@ -33,20 +50,20 @@ def main():
                 if ticket_count > 0:
                     print('Now pick a movie: ')
                     for movie in movies_catalog:
-                        print(movie.name + ', Price - {}$'.format(movie.cost))
-                    input_movie = input().lower()
-                    # Checks which movie was chosen and calculates it's price
-                    if input_movie in [movie.name.lower() for movie in movies_catalog]:
-                        for movie in movies_catalog:
-                            if movie.name.lower() == input_movie:
-                                price = movie.buy_ticket(ticket_count)
-                                cinema_revenue += price
+                        print('{}. {}, Price - {}$'.format(movie.index, movie.name, movie.cost))
+                    input_movie = choose_movie(input(), movies_catalog)
+                    if input_movie is not None:
+                        price = input_movie.buy_ticket(ticket_count)
+                        cinema_revenue += price
                         print('That will be {}$\r\nGoodbye.'.format(price))
                     else:
-                        print('Sorry, {} is not in the catalog.'.format(input_movie))
-
+                        print('Sorry, that movie is not in the catalog.')
                 else:
-                    print('Invalid amount of tickets')
+                    print('Invalid amount of tickets.')
+        else:
+            for movie in movies_catalog:
+                print('{} ticket(s) were bought for {}.'.format(int(movie.cost / 2 - 1), movie.name))
+            print('Overall cinema revenue: {}$'.format(cinema_revenue))
 
 
 if __name__ == '__main__':
